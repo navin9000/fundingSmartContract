@@ -24,7 +24,7 @@ contract Funding{
         require(manager!=msg.sender); 
         require(msg.value > 0 wei,"not enough funds"); 
         require(block.timestamp < endTime,"funding pool expired");   
-        require(amntRequired() > 0,"funding goal reached"); 
+        require(amntRequired() > 0 ,"funding goal reached"); 
         _;
      }
 
@@ -44,10 +44,11 @@ contract Funding{
      }
 
     //constructor for intializing manager 
+    //goal time in days
     constructor(uint _amt,uint _time){
         goalAmt=_amt;
         goalTime=_time;
-        endTime=block.timestamp + goalTime;     
+        endTime=(((block.timestamp/60)/60)/24) + goalTime;     
         manager=payable(msg.sender); //contract ---> deploy address 
     }
 
@@ -77,6 +78,7 @@ contract Funding{
         emit toInvsetors(address(this),msg.sender,investors[msg.sender]);
         investors[msg.sender]=0;
     }
+
 
     //to check the amount required
     function amntRequired()public view returns(uint a){

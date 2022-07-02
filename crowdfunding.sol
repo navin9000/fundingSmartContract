@@ -4,8 +4,9 @@ pragma solidity ^0.8.0;
 //contract for crowdfunding
 
 contract Funding{
-    //uint public fundAmt;
-    mapping(address => uint) investors;
+    //uint public fundAmt; 
+    mapping(address => uint) investors;                   // investors history
+    mapping(address => bool) aleardyInvestor;             // sotres aleardy investors history
     address payable manager;
     uint public totalAmt;
     uint public noOfInvestors;
@@ -48,16 +49,23 @@ contract Funding{
     constructor(uint _amt,uint _time){
         goalAmt=_amt;
         goalTime=_time;
-        endTime=(((block.timestamp/60)/60)/24) + goalTime;     
-        manager=payable(msg.sender); //contract ---> deploy address 
+        endTime=block.timestamp + (((goalTime*25)*60)*60);  // time in days as input    
+        manager=payable(msg.sender);                        //contract ---> deploy address 
     }
 
     //getting fund amount to contract and checking for the conditions to met
     //the first and last person who is investing can invest more than required
     function toGetFunds() public payable checkInvestor{
-        investors[msg.sender]=msg.value;
-        totalAmt+=msg.value;
-        noOfInvestors+=1; //rewards
+        if(!aleardyInvestor[msg.sender]){                 // checks for new investors
+            investors[msg.sender]=msg.value;
+            totalAmt+=msg.value;
+            noOfInvestors+=1;                             //number of investors here 
+            aleardyInvestor[msg.sender]=true;             // adding him in the investors mapping
+        }
+        else{                                             // aleardy investors here works
+            investors[msg.sender]=msg.value+investors[msg.sender];
+            totalAmt+=msg.value;
+        }
         emit invested(msg.sender,msg.value);
     }
 
